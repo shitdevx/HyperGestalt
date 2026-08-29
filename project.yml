@@ -12,6 +12,9 @@ targets:
     sources:
       - HyperGestalt/Sources
       - HyperGestalt/Assets.xcassets
+      - path: external/bad_query/bad_query/bad_query.c
+        group: external/bad_query
+        headerVisibility: public
     settings:
       base:
         SWIFT_VERSION: 5.0

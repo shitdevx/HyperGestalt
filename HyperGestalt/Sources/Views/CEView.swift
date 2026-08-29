@@ -128,7 +128,7 @@ private struct CEEditSheet: View {
                         cache[key] = ce_parse(text)
                         mg_dict_now["CacheExtra"] = cache
                         onDismiss()
-                    }.bold()
+                    }.font(.system(.body, design: .default, weight: .semibold))
                 }
             }
         }
@@ -173,7 +173,7 @@ private struct CEAddSheet: View {
                         cache[trimmed] = ce_parse(value)
                         mg_dict_now["CacheExtra"] = cache
                         onDismiss()
-                    }.bold()
+                    }.font(.system(.body, design: .default, weight: .semibold))
                 }
             }
         }
