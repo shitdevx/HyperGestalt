@@ -34,9 +34,14 @@ struct ContentView: View {
                     .disabled(state.granting_mg)
                 }
 
-                Section(header: Text("Tweaks")) {
+                Section(header: Text("Tweaks • iOS \(osVersionString()) • \(machine_name())")) {
                     NavigationLink(destination: GestaltView()) {
-                        Text("MobileGestalt")
+                        HStack {
+                            Text("MobileGestalt")
+                            Spacer()
+                            Text("\(all_tweaks.filter { $0.supported() }.count) tweaks")
+                                .font(.caption).foregroundColor(.secondary)
+                        }
                     }
                     .disabled(state.mg_granted != true)
 
@@ -44,6 +49,18 @@ struct ContentView: View {
                         Text("CacheExtra Editor")
                     }
                     .disabled(state.mg_granted != true)
+
+                    if state.mg_granted == true {
+                        Button("Respring") { respring() }
+                            .foregroundColor(.orange)
+                    }
+                }
+
+                if !is_valid {
+                    Section(header: Text("Safety")) {
+                        Text("Plist invalid — Apply is blocked until valid file loaded. Revert or restore backup.")
+                            .font(.caption).foregroundColor(.red)
+                    }
                 }
             }
             .navigationTitle("HyperGestalt")

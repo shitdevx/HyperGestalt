@@ -11,6 +11,31 @@ enum TweakPaths {
         try? FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
         return url.path
     }
+    static var presets: String {
+        let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+            .appendingPathComponent("HyperGestaltPresets", isDirectory: true)
+        try? FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
+        return url.path
+    }
+}
+
+func respring() {
+    // best-effort respring - sbreload if available, else backboardd
+    let candidates = ["/usr/bin/sbreload", "/usr/bin/killall", "/bin/killall"]
+    for bin in candidates {
+        if FileManager.default.isExecutableFile(atPath: bin) {
+            if bin.contains("sbreload") {
+                _ = try? Process.run(URL(fileURLWithPath: bin), arguments: [])
+                return
+            } else {
+                _ = try? Process.run(URL(fileURLWithPath: bin), arguments: ["backboardd"])
+                return
+            }
+        }
+    }
+    // fallback: notify SpringBoard viaDarwin notification
+    CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), CFNotificationName("com.hypergestalt.respring" as CFString), nil, nil, true)
+    exit(0)
 }
 
 var mg_dict_now: NSMutableDictionary = NSMutableDictionary()
@@ -221,4 +246,35 @@ func mg_tweak_binding(_ tweak: mg_tweak) -> Binding<Bool> {
             else { tweak.apply_off(to: mg_dict_now) }
         }
     )
+}
+
+func mg_diff() -> [(key: String, old: Any?, new: Any?)] {
+    let backupURL = URL(fileURLWithPath: TweakPaths.backups).appendingPathComponent("SavedGestalt.plist")
+    guard let saved = try? NSDictionary(contentsOf: backupURL, error: ()) as? [String: Any],
+          let savedCE = saved["CacheExtra"] as? [String: Any],
+          let curCE = mg_dict_now["CacheExtra"] as? [String: Any] else { return [] }
+    var diff: [(String, Any?, Any?)] = []
+    let allKeys = Set(savedCE.keys).union(curCE.keys)
+    for k in allKeys.sorted() {
+        let o = savedCE[k]
+        let n = curCE[k]
+        if String(describing: o) != String(describing: n) {
+            diff.append((k, o, n))
+        }
+    }
+    return diff
+}
+
+func mg_export_preset(name: String) throws -> URL {
+    let data = try PropertyListSerialization.data(fromPropertyList: mg_dict_now, format: .xml, options: 0)
+    let url = URL(fileURLWithPath: TweakPaths.presets).appendingPathComponent("\(name).plist")
+    try data.write(to: url)
+    return url
+}
+
+func mg_import_preset(at url: URL) throws {
+    let data = try Data(contentsOf: url)
+    let plist = try PropertyListSerialization.propertyList(from: data, options: .mutableContainersAndLeaves, format: nil) as! NSMutableDictionary
+    mg_dict_now = plist
+    try mg_write(data)
 }
