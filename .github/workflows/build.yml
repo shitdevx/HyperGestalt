@@ -23,13 +23,10 @@ jobs:
           cat > external/.include/sys/fileport.h << 'EOF'
           #ifndef _SYS_FILEPORT_H_
           #define _SYS_FILEPORT_H_
-          #include <sys/cdefs.h>
-          #include <sys/types.h>
           #include <mach/mach.h>
-          __BEGIN_DECLS
+          typedef mach_port_t fileport_t;
           kern_return_t fileport_makeport(int fd, mach_port_t *portname);
           int fileport_makefd(mach_port_t portname);
-          __END_DECLS
           #endif
           EOF
           cat external/.include/sys/fileport.h
@@ -37,6 +34,7 @@ jobs:
           # Also keep copy for direct include
           mkdir -p external/darksword-kexploit/.include/sys
           cp external/.include/sys/fileport.h external/darksword-kexploit/.include/sys/fileport.h
+          cp HyperGestalt/Bridging/include/sys/fileport.h external/.include/sys/fileport.h || true
       - name: Build darksword-kexploit (arm64/arm64e, iOS 15.0+)
         run: |
           xcrun --sdk iphoneos --show-sdk-path
