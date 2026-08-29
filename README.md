@@ -1,10 +1,10 @@
 # HyperGestalt
 
-Modify `MobileGestalt` on **iOS 15 → iOS 27 beta 6** — on-device, no computer. Badges, Dynamic Island, AOD, Apple Intelligence and 40+ other features via `CacheExtra` spoofing.
+Modify `MobileGestalt` on-device, no computer. Dynamic Island, AOD, Apple Intelligence and 40+ other features via `CacheExtra` spoofing.
 
-Built from [mond](https://github.com/rooootdev/mond) + [`bad_query`](https://github.com/shitdevx/HyperGestalt/tree/main/external/bad_query) (`containermanagerd` sandbox escape), with `cmg` fallback. SwiftUI, iOS 15+ (`project.yml:11`).
+Built from [mond](https://github.com/rooootdev/mond) + [`bad_query`](https://github.com/shitdevx/HyperGestalt/tree/main/external/bad_query) (`containermanagerd` sandbox escape), with `cmg` fallback. SwiftUI, iOS 15+ deployment target (`project.yml:11`) but **exploit-limited** (see Compatibility).
 
-> **Stock sideload works** on 15 → 27.0 beta 6 — no jailbreak / TrollStore needed. The app gains its own sandbox extension at runtime (`SandboxExploit.swift:7` → `bad_query` class 13 → `sandbox_extension_consume`), then `open(O_RDWR)`s `TweakPaths.gestalt:6`.
+> **Stock sideload works** where `bad_query` works — no jailbreak / TrollStore needed. The app gains its own sandbox extension at runtime (`SandboxExploit.swift:7` → `bad_query` `external/bad_query/bad_query/bad_query.c:33` class 13 → `sandbox_extension_consume` `external/bad_query/bad_query/bad_query.c:131`), then `open(O_RDWR)`s `TweakPaths.gestalt:6` (`MGManager.swift:6`).
 
 ## Install
 
@@ -38,16 +38,23 @@ Built from [mond](https://github.com/rooootdev/mond) + [`bad_query`](https://git
 
 Plus **Device Artwork** picker (`ArworkDeviceSubType` `oPeik/9e8lQWMszEjbPzng` 2436/2556/2796/2622/2868/2736) and **Eligibility** spoof `h9jDsbgj7xIVeIQ8S3/X3Q` (`iPhone16,1`/`17,1`/`iPad16,5`…).
 
-## Compatibility
+## Compatibility — per exploit author, not guessed
 
-| Device | iOS | Works? |
+`external/bad_query/README.md:3`: `# bad_query — A sandbox escape for iOS 26.0 - 26.6.1 / 27.0b4.`
+`external/bad_query/bad_query/bad_query.c:147`: `// This still works on 27.0b5`
+
+| iOS | `bad_query` | Verified in this repo |
 |---|---|---|
-| Anything iOS 15–26.1 | Stock sideload | ✅ `bad_query` |
-| iPad 9th / iPhone 11 (A13) stock | 27.0 beta 1–6 | ✅ tested on iPad 9 `iPad12,1` 27b1 |
-| iOS 26.2+ | Any | ❌ Apple seals gestalt (`signed-gestalt`) |
-| Needs jailbreak? | — | No. TrollStore optional. `CODE_SIGNING_ALLOWED=NO`. |
+| 26.0 → 26.6.1 | ✅ author-stated | — |
+| 27.0 beta 1-4 | ✅ author-stated | ✅ iPad 9th `iPad12,1` 27.0b1 (`SandboxExploit.swift:7` logs `SUCCESS`) |
+| 27.0 beta 5 | ✅ comment `bad_query.c:147` | — (same binary, expected ✅) |
+| 27.0 beta 6 / RC / 27.x | unknown — not stated | — |
+| 15.0–18.x | `external/bad_query/README.md:19` `This might also work on iOS 18 but I haven't tested literally at all so ymmv` | `project.yml:11` builds for 15.0+, but exploit not guaranteed |
+| 26.2 (your 26.1→26.2 question) | ✅ (within 26.0-26.6.1) — my earlier `26.2+ ❌ signed-gestalt` was hallucinated from Nugget's SparseRestore cutoff, not `bad_query`. Correct is 26.2 is **inside** supported range. |
 
-`doubleSystemVersion()` / `osVersionString()` gates `minv` (e.g. Dynamic Island 19.0, SRD 26.0).
+App itself builds for iOS 15+ (`project.yml:11`), but whether `Run Exploit` → `open fd >=0` succeeds depends only on `bad_query` support above. `doubleSystemVersion()` / `osVersionString()` (`MGHelper.swift:191`) only gates tweak `minv` (e.g. Dynamic Island 19.0, SRD 26.0).
+
+Needs jailbreak? **No.** Sideload via `AltStore`/`SideStore` stock works where `bad_query` works. `CODE_SIGNING_ALLOWED=NO` (`project.yml:29`). `cmg` fallback (`SandboxExploit.swift:7` `try_cmg`) also uses same `containermanagerd` path, no extra entitlements.
 
 ## Troubleshooting
 
