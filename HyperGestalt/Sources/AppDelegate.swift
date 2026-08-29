@@ -1,6 +1,11 @@
 import Foundation
 import UIKit
 
+extension Notification.Name {
+    static let appWillResignActive = Notification.Name("appWillResignActive")
+    static let appDidBecomeActive = Notification.Name("appDidBecomeActive")
+}
+
 @main
 @MainActor
 class HyperGestaltAppDelegate: NSObject, UIApplicationDelegate {
@@ -43,9 +48,4 @@ extension HyperGestaltAppDelegate {
     func applicationDidBecomeActive(_ application: UIApplication) {
         NotificationCenter.default.post(name: .appDidBecomeActive, object: nil)
     }
-}
-
-extension Notification {
-    static let appWillResignActive = Notification.Name("appWillResignActive")
-    static let appDidBecomeActive = Notification.Name("appDidBecomeActive")
 }

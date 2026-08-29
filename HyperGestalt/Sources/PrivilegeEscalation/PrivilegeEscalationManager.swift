@@ -33,6 +33,7 @@ class PrivilegeEscalationManager: NSObject {
         isInitialized = true
     }
     
+    @MainActor
     private func buildConfiguration() async -> Configuration {
         let iosVersion = UIDevice.current.systemVersion
         var uts = utsname()
@@ -200,7 +201,7 @@ class PrivilegeEscalationManager: NSObject {
 
     private func persistExploitLogs() {
         // Spec: Primary /var/mobile/Documents/HyperGestalt/logs/exploit_log.txt, Backup /tmp/hypergis_exploit_emergency.log, Archive /var/mobile/Documents/HyperGestalt/logs/archive/
-        let primary = FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Documents/HyperGestalt/logs")
+        let primary = URL(fileURLWithPath: "/var/mobile/Documents/HyperGestalt/logs")
         let archive = primary.appendingPathComponent("archive")
         do {
             try FileManager.default.createDirectory(at: archive, withIntermediateDirectories: true)
