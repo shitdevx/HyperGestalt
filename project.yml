@@ -21,6 +21,7 @@ targets:
           - $(SRCROOT)/external/clipwire/src
           - $(SRCROOT)/HyperGestalt/Bridging
           - $(SRCROOT)/HyperGestalt/Bridging/include
+          - $(SRCROOT)/HyperGestalt/Sources/Exploit/C
         CODE_SIGN_ENTITLEMENTS: HyperGestalt/HyperGestalt.entitlements
         INFOPLIST_FILE: HyperGestalt/Info.plist
         IPHONEOS_DEPLOYMENT_TARGET: 15.0
