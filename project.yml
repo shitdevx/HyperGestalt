@@ -11,6 +11,7 @@ targets:
     deploymentTarget: "15.0"
     sources:
       - HyperGestalt/Sources
+      - HyperGestalt/Assets.xcassets
     settings:
       base:
         SWIFT_VERSION: 5.0
