@@ -11,24 +11,24 @@ struct GestaltView: View {
     var body: some View {
         List {
             if !is_valid || is_empty {
-                Section {
+                Section(header: Text("Warning")) {
                     if is_empty {
-                        warningRow("MobileGestalt.plist is empty. Do not reboot!")
+                        HStack {
+                            Image(systemName: "exclamationmark.triangle.fill").foregroundColor(.yellow)
+                            Text("MobileGestalt.plist is empty. Do not reboot!")
+                        }
                     }
                     if !is_valid {
-                        warningRow("MobileGestalt.plist is invalid. Do not reboot!")
+                        HStack {
+                            Image(systemName: "exclamationmark.triangle.fill").foregroundColor(.yellow)
+                            Text("MobileGestalt.plist is invalid. Do not reboot!")
+                        }
                     }
-                } header: {
-                    Label("Warning", systemImage: "exclamationmark.triangle")
-                } footer: {
-                    Text("Try 'Revert Tweaks'. If warnings persist, you may have a problem.")
                 }
             }
 
             Section {
                 Button("Apply Tweaks") {
-                    selected_st = selected_st
-                    product_type = product_type
                     mg_apply()
                     state.appendLog("[mg] tweaks applied, respring for changes")
                 }
@@ -36,11 +36,9 @@ struct GestaltView: View {
                     mg_revert()
                     state.appendLog("[mg] reverted to original")
                 }
-            } footer: {
-                Text("Changes require a respring to take effect.")
             }
 
-            Section {
+            Section(header: Text("Device Artwork")) {
                 Picker("Subtype", selection: $selected_st) {
                     Text("Original (\(og_st))").tag("og")
                     Text("Disable Dynamic Island").tag("no_dynamic_island")
@@ -60,21 +58,17 @@ struct GestaltView: View {
                 if enable_device_name {
                     TextField("Device Name", text: $mg_device_name)
                 }
-            } header: {
-                Label("Device Artwork", systemImage: "paintbrush.pointed")
             }
 
-            Section {
-                ForEach(Array(all_tweaks.enumerated()), id: \.element.title) { idx, t in
+            Section(header: Text("Features")) {
+                ForEach(Array(all_tweaks.enumerated()), id: \.element.title) { _, t in
                     if t.supported() {
                         TweakToggle(tweak: t)
                     }
                 }
-            } header: {
-                Label("Features", systemImage: "gearshape")
             }
 
-            Section {
+            Section(header: Text("Eligibility")) {
                 Picker("Device Spoofing", selection: $product_type) {
                     Text("Default (\(machine_name()))").tag(machine_name())
                     Text("iPhone 15 Pro").tag("iPhone16,1")
@@ -84,26 +78,20 @@ struct GestaltView: View {
                         Text("iPhone 16 Pro Max").tag("iPhone17,2")
                     }
                 }
-            } header: {
-                Label("Eligibility", systemImage: "checklist")
             }
         }
         .navigationTitle("MobileGestalt")
-        .task {
+        .onAppear {
             mg_load()
-            while is_loading { try? await Task.sleep(for: .milliseconds(50)) }
-            selected_st = selected_st
-            enable_device_name = enable_device_name
-            mg_device_name = mg_device_name
-            product_type = product_type
-        }
-    }
-
-    private func warningRow(_ text: String) -> some View {
-        HStack {
-            Image(systemName: "exclamationmark.triangle.fill")
-                .foregroundStyle(.yellow)
-            Text(text)
+            DispatchQueue.global().async {
+                while is_loading { Thread.sleep(forTimeInterval: 0.05) }
+                DispatchQueue.main.async {
+                    selected_st = selected_st
+                    enable_device_name = enable_device_name
+                    mg_device_name = mg_device_name
+                    product_type = product_type
+                }
+            }
         }
     }
 }
@@ -118,7 +106,7 @@ struct TweakToggle: View {
                 if let msg = tweak.info_msg {
                     Text(msg)
                         .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .foregroundColor(.secondary)
                 }
             }
         }

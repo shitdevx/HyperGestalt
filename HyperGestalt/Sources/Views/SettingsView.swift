@@ -22,73 +22,43 @@ struct SettingsView: View {
                     VStack(alignment: .leading) {
                         Text("HyperGestalt")
                             .font(.headline)
-                        Text("v1.0.0 - MobileGestalt & Capability Editor")
+                        Text("v1.0.0 - MobileGestalt Editor")
                             .font(.subheadline)
-                            .foregroundStyle(.secondary)
+                            .foregroundColor(.secondary)
                     }
                 }
             }
 
-            Section {
-                Picker("Method", selection: $method) {
-                    Text("bad_query").tag("bad_query")
-                }
-                .pickerStyle(.segmented)
-
+            Section(header: Text("Exploit")) {
                 Button("Re-run Exploit") {
                     grant_all(state: state)
                 }
-            } header: {
-                Label("Exploit", systemImage: "wrench.and.screwdriver")
-            } footer: {
-                Text("**bad_query:** Sandbox escape via containermanager. Supports iOS 15.0+. By forcequit.")
             }
 
-            Section {
+            Section(header: Text("Write Mode")) {
                 Toggle("Atomic Write", isOn: $atomic_write)
-            } header: {
-                Label("Write Mode", systemImage: "internaldrive")
-            } footer: {
-                Text("Atomic write replaces the file. Disable for in-place write which may persist across reboots.")
             }
 
-            Section {
-                Button("Respring") {
-                    // Respring via notification crash
-                    let url = URL(string: "prefs:root=General")!
-                    UIApplication.shared.open(url)
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                        exit(0)
-                    }
-                }
-            } header: {
-                Label("Tools", systemImage: "wrench.and.screwdriver")
-            }
-
-            Section {
-                HStack {
-                    Text("Credits")
-                        .font(.headline)
-                }
+            Section(header: Text("Credits")) {
                 ForEach(credits, id: \.name) { credit in
-                    HStack {
-                        VStack(alignment: .leading) {
-                            Text(credit.name).font(.headline)
-                            Text(credit.role).font(.subheadline).foregroundStyle(.secondary)
-                        }
-                        Spacer()
-                        Image(systemName: "chevron.right")
-                            .foregroundStyle(.tertiary)
-                            .imageScale(.small)
-                    }
-                    .onTapGesture {
+                    Button(action: {
                         if let url = URL(string: credit.url) {
                             UIApplication.shared.open(url)
                         }
+                    }) {
+                        HStack {
+                            VStack(alignment: .leading) {
+                                Text(credit.name).font(.headline)
+                                Text(credit.role).font(.subheadline).foregroundColor(.secondary)
+                            }
+                            Spacer()
+                            Image(systemName: "chevron.right")
+                                .foregroundColor(.gray)
+                                .imageScale(.small)
+                        }
                     }
+                    .foregroundColor(.primary)
                 }
-            } header: {
-                Label("Credits", systemImage: "person.3.fill")
             }
         }
         .navigationTitle("Settings")

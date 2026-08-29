@@ -1,5 +1,6 @@
 import Foundation
 import UIKit
+import SwiftUI
 
 enum TweakPaths {
     static var gestalt = "/private/var/containers/Shared/SystemGroup/systemgroup.com.apple.mobilegestaltcache/Library/Caches/com.apple.MobileGestalt.plist"
