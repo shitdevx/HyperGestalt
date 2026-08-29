@@ -1,5 +1,5 @@
 import Foundation
-import UIKit
+import Combine
 
 class DeviceDatabase: ObservableObject {
     @Published var devices: [DeviceModel] = []

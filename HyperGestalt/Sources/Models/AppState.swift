@@ -1,5 +1,5 @@
 import Foundation
-import UIKit
+import Combine
 
 extension Notification {
     static let deviceConfigurationChanged = Notification.Name("deviceConfigurationChanged")

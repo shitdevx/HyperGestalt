@@ -1,6 +1,7 @@
 import Foundation
 import UIKit
 
+@main
 @MainActor
 class HyperGestaltAppDelegate: NSObject, UIApplicationDelegate {
     static let shared = HyperGestaltAppDelegate()
