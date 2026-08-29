@@ -1,0 +1,9 @@
+[submodule "external/darksword-kexploit"]
+	path = external/darksword-kexploit
+	url = https://github.com/opa334/darksword-kexploit
+[submodule "external/bad_query"]
+	path = external/bad_query
+	url = https://github.com/forcequitOS/bad_query
+[submodule "external/clipwire"]
+	path = external/clipwire
+	url = https://github.com/olaffx/clipwire
