@@ -1,0 +1,38 @@
+name: HyperGestalt
+options:
+  bundleIdPrefix: com.hypergestalt
+  xcodeVersion: "15.4"
+  createIntermediateGroups: true
+
+targets:
+  HyperGestalt:
+    type: application
+    platform: iOS
+    deploymentTarget: "15.0"
+    sources:
+      - path: HyperGestalt/Sources
+        excludes:
+          - "Capabilities"
+          - "FileManagement"
+      - path: HyperGestalt/Bridging
+        type: folder
+    settings:
+      base:
+        SWIFT_VERSION: 5.0
+        SWIFT_BRIDGING_HEADER: HyperGestalt/HyperGestalt-Bridging-Header.h
+        HEADER_SEARCH_PATHS:
+          - $(SRCROOT)/external/bad_query/bad_query
+          - $(SRCROOT)/external/clipwire/src
+          - $(SRCROOT)/HyperGestalt/Bridging
+          - $(SRCROOT)/HyperGestalt/Bridging/include
+        INFOPLIST_FILE: HyperGestalt/Info.plist
+        IPHONEOS_DEPLOYMENT_TARGET: 15.0
+        TARGETED_DEVICE_FAMILY: "1,2"
+        CODE_SIGNING_ALLOWED: NO
+        LD_RUNPATH_SEARCH_PATHS: "$(inherited) @executable_path/Frameworks"
+      configs:
+        Debug:
+          SWIFT_OPTIMIZATION_LEVEL: "-Onone"
+        Release:
+          SWIFT_OPTIMIZATION_LEVEL: "-O"
+    dependencies: []
