@@ -1,0 +1,62 @@
+name: HyperGestalt Build
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build-exploits:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Select Xcode 15.4
+        run: sudo xcode-select -s /Applications/Xcode_15.4.app || sudo xcode-select -p
+      - name: Build darksword-kexploit (arm64/arm64e, iOS 15.0+)
+        run: |
+          xcrun --sdk iphoneos --show-sdk-path
+          make -C external/darksword-kexploit
+          file external/darksword-kexploit/darksword-pe
+          ldid -Sentitlements.plist external/darksword-kexploit/darksword-pe || echo "ldid not found, skip sign"
+          ls -lh external/darksword-kexploit/darksword-pe
+      - name: Build clipwire (arm64e, iOS 26.1 A13)
+        run: |
+          make -C external/clipwire
+          file external/clipwire/clipwire
+          ldid -Sentitlements.plist external/clipwire/clipwire || echo "ldid not found"
+          ls -lh external/clipwire/clipwire
+      - name: Verify bad_query sources
+        run: |
+          ls -lh external/bad_query/bad_query/bad_query.h external/bad_query/bad_query/bad_query.c
+          cat external/bad_query/bad_query/bad_query.h
+      - name: Upload exploit artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: exploit-binaries
+          path: |
+            external/darksword-kexploit/darksword-pe
+            external/clipwire/clipwire
+
+  build-app:
+    runs-on: macos-14
+    needs: build-exploits
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Select Xcode
+        run: sudo xcode-select -p; xcodebuild -version
+      - name: Build HyperGestalt (iOS 15.0+, Swift)
+        run: |
+          # Project is under HyperGestalt/ - uses Bridging Header for bad_query/clipwire/darksword
+          # Header Search Paths: external/bad_query/bad_query, external/clipwire/src, HyperGestalt/Bridging
+          # Bridging Header: HyperGestalt/HyperGestalt-Bridging-Header.h
+          xcodebuild -project HyperGestalt/HyperGestalt.xcodeproj -scheme HyperGestalt -sdk iphoneos -configuration Release clean build CODE_SIGNING_ALLOWED=NO | xcpretty || xcodebuild -project HyperGestalt/HyperGestalt.xcodeproj -scheme HyperGestalt -sdk iphoneos -configuration Release clean build CODE_SIGNING_ALLOWED=NO
+      - name: Archive IPA (unsigned)
+        run: |
+          xcodebuild -project HyperGestalt/HyperGestalt.xcodeproj -scheme HyperGestalt -sdk iphoneos -configuration Release archive -archivePath build/HyperGestalt.xcarchive CODE_SIGNING_ALLOWED=NO
+          ls -lh build/
