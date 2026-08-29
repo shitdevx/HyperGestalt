@@ -79,6 +79,9 @@ jobs:
         run: |
           ls -lh project.yml HyperGestalt/Info.plist || true
           xcodegen generate --spec project.yml
+          # XcodeGen generates objectVersion 77 (Xcode 16) but runner has Xcode 15.4 (max 56) - downgrade
+          sed -i '' 's/objectVersion = 77/objectVersion = 56/g' HyperGestalt.xcodeproj/project.pbxproj || sed -i 's/objectVersion = 77/objectVersion = 56/g' HyperGestalt.xcodeproj/project.pbxproj
+          grep objectVersion HyperGestalt.xcodeproj/project.pbxproj || true
           ls -lh HyperGestalt.xcodeproj/ 2>&1 | head -20
           cat HyperGestalt.xcodeproj/project.pbxproj | head -50
       - name: Build HyperGestalt app (iOS 15.0+, CODE_SIGNING_ALLOWED=NO)
