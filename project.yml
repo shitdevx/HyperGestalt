@@ -10,12 +10,7 @@ targets:
     platform: iOS
     deploymentTarget: "15.0"
     sources:
-      - path: HyperGestalt/Sources
-        excludes:
-          - "Capabilities"
-          - "FileManagement"
-      - path: HyperGestalt/Bridging
-        type: folder
+      - HyperGestalt/Sources
     settings:
       base:
         SWIFT_VERSION: 5.0
@@ -25,6 +20,7 @@ targets:
           - $(SRCROOT)/external/clipwire/src
           - $(SRCROOT)/HyperGestalt/Bridging
           - $(SRCROOT)/HyperGestalt/Bridging/include
+        CODE_SIGN_ENTITLEMENTS: HyperGestalt/HyperGestalt.entitlements
         INFOPLIST_FILE: HyperGestalt/Info.plist
         IPHONEOS_DEPLOYMENT_TARGET: 15.0
         TARGETED_DEVICE_FAMILY: "1,2"
