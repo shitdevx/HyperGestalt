@@ -38,7 +38,8 @@ jobs:
       - name: Build darksword-kexploit (arm64/arm64e, iOS 15.0+)
         run: |
           xcrun --sdk iphoneos --show-sdk-path
-          make -C external/darksword-kexploit
+          # Makefile default target is 'sign' which requires ldid; build binary directly
+          make -C external/darksword-kexploit darksword-pe
           file external/darksword-kexploit/darksword-pe
           ls -lh external/darksword-kexploit/darksword-pe || true
           # Optional ldid signing (Theos ldid)
