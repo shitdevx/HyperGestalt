@@ -20,21 +20,24 @@ enum TweakPaths {
 }
 
 func respring() {
-    // best-effort respring - sbreload if available, else backboardd
-    let candidates = ["/usr/bin/sbreload", "/usr/bin/killall", "/bin/killall"]
-    for bin in candidates {
-        if FileManager.default.isExecutableFile(atPath: bin) {
-            if bin.contains("sbreload") {
-                _ = try? Process.run(URL(fileURLWithPath: bin), arguments: [])
-                return
-            } else {
-                _ = try? Process.run(URL(fileURLWithPath: bin), arguments: ["backboardd"])
-                return
-            }
+    // best-effort respring - posix_spawn to avoid Process (not in iOS SDK)
+    func spawn(_ path: String, _ args: [String]) {
+        var pid: pid_t = 0
+        var argv: [UnsafeMutablePointer<CChar>?] = args.map { $0.withCString { strdup($0) } } + [nil]
+        defer { argv.forEach { free($0) } }
+        argv.withUnsafeMutableBufferPointer { buf in
+            _ = posix_spawn(&pid, path, nil, nil, buf.baseAddress!, environ)
         }
     }
-    // fallback: notify SpringBoard viaDarwin notification
-    CFNotificationCenterPostNotification(CFNotificationCenterGetDarwinNotifyCenter(), CFNotificationName("com.hypergestalt.respring" as CFString), nil, nil, true)
+    if FileManager.default.isExecutableFile(atPath: "/usr/bin/sbreload") {
+        spawn("/usr/bin/sbreload", ["sbreload"]); return
+    }
+    if FileManager.default.isExecutableFile(atPath: "/usr/bin/killall") {
+        spawn("/usr/bin/killall", ["killall", "backboardd"]); return
+    }
+    if FileManager.default.isExecutableFile(atPath: "/bin/killall") {
+        spawn("/bin/killall", ["killall", "backboardd"]); return
+    }
     exit(0)
 }
 
