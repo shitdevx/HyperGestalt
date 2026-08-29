@@ -15,9 +15,6 @@ struct HyperGestaltApp: App {
         WindowGroup {
             ContentView()
                 .environmentObject(state)
-                .onAppear {
-                    grant_all(state: state)
-                }
         }
     }
 }

@@ -11,18 +11,32 @@ struct ContentView: View {
                         .frame(minHeight: 120)
                 }
 
+                Section(header: Text("Exploit")) {
+                    HStack {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(state.mg_granted == true ? "Access Granted" : state.mg_granted == false ? "Access Denied" : "Not Run")
+                                .font(.headline)
+                            Text(state.granting_mg ? "Running…" : "Tap to run sandbox escape")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                        Spacer()
+                        if state.granting_mg {
+                            ProgressView()
+                        } else if let granted = state.mg_granted {
+                            Image(systemName: granted ? "checkmark.circle.fill" : "xmark.circle.fill")
+                                .foregroundColor(granted ? .green : .red)
+                        }
+                    }
+                    Button(state.mg_granted == true ? "Re-run Exploit" : "Run Exploit") {
+                        grant_all(state: state)
+                    }
+                    .disabled(state.granting_mg)
+                }
+
                 Section(header: Text("Tweaks")) {
                     NavigationLink(destination: GestaltView()) {
-                        HStack {
-                            Text("MobileGestalt")
-                            Spacer()
-                            if state.granting_mg {
-                                ProgressView()
-                            } else if let granted = state.mg_granted {
-                                Image(systemName: granted ? "checkmark.circle.fill" : "xmark.circle.fill")
-                                    .foregroundColor(granted ? .green : .red)
-                            }
-                        }
+                        Text("MobileGestalt")
                     }
                     .disabled(state.mg_granted != true)
 

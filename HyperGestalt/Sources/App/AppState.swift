@@ -1,5 +1,6 @@
 import SwiftUI
 
+@MainActor
 final class AppState: ObservableObject {
     static let shared = AppState()
 
@@ -9,8 +10,12 @@ final class AppState: ObservableObject {
     @Published var log_output = ""
 
     func appendLog(_ text: String) {
-        DispatchQueue.main.async {
+        if Thread.isMainThread {
             self.log_output += text + "\n"
+        } else {
+            DispatchQueue.main.async {
+                self.log_output += text + "\n"
+            }
         }
     }
 }
