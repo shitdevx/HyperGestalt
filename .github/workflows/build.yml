@@ -18,8 +18,9 @@ jobs:
         run: sudo xcode-select -s /Applications/Xcode_15.4.app || sudo xcode-select -p; xcodebuild -version
       - name: Create fileport.h shim for darksword (sys/fileport.h not in iPhoneOS SDK)
         run: |
-          mkdir -p external/darksword-kexploit/.include/sys
-          cat > external/darksword-kexploit/.include/sys/fileport.h << 'EOF'
+          # Makefile uses -I../.include from external/darksword-kexploit => external/.include
+          mkdir -p external/.include/sys
+          cat > external/.include/sys/fileport.h << 'EOF'
           #ifndef _SYS_FILEPORT_H_
           #define _SYS_FILEPORT_H_
           #include <sys/cdefs.h>
@@ -31,8 +32,11 @@ jobs:
           __END_DECLS
           #endif
           EOF
-          cat external/darksword-kexploit/.include/sys/fileport.h
-          ls -R external/darksword-kexploit/.include
+          cat external/.include/sys/fileport.h
+          ls -R external/.include
+          # Also keep copy for direct include
+          mkdir -p external/darksword-kexploit/.include/sys
+          cp external/.include/sys/fileport.h external/darksword-kexploit/.include/sys/fileport.h
       - name: Build darksword-kexploit (arm64/arm64e, iOS 15.0+)
         run: |
           xcrun --sdk iphoneos --show-sdk-path
