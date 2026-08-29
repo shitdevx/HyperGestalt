@@ -29,12 +29,24 @@ struct GestaltView: View {
 
             Section {
                 Button("Apply Tweaks") {
-                    mg_apply()
-                    state.appendLog("[mg] tweaks applied, respring for changes")
+                    do {
+                        try mg_apply()
+                        state.appendLog("[mg] tweaks applied, respring for changes")
+                        // verify on-disk
+                        if let v = mg_verify_on_disk() {
+                            state.appendLog(v)
+                        }
+                    } catch {
+                        state.appendLog("[mg] apply failed: \(error.localizedDescription)")
+                    }
                 }
                 Button("Revert Tweaks") {
-                    mg_revert()
-                    state.appendLog("[mg] reverted to original")
+                    do {
+                        try mg_revert()
+                        state.appendLog("[mg] reverted to original")
+                    } catch {
+                        state.appendLog("[mg] revert failed: \(error.localizedDescription)")
+                    }
                 }
             }
 

@@ -101,36 +101,51 @@ func mg_load() {
     }
 }
 
-func mg_apply() {
-    do {
-        let cache_extra = mg_dict_now["CacheExtra"] as? NSMutableDictionary ?? NSMutableDictionary()
-        if !product_type.isEmpty {
-            cache_extra["h9jDsbgj7xIVeIQ8S3/X3Q"] = product_type
-        }
-        let artwork = cache_extra["oPeik/9e8lQWMszEjbPzng"] as? NSMutableDictionary ?? NSMutableDictionary()
-        artwork["ArtworkDeviceSubType"] = selected_st_value
-        if enable_device_name {
-            artwork["ArtworkDeviceProductDescription"] = mg_device_name
-        }
-
-        let data = try PropertyListSerialization.data(fromPropertyList: mg_dict_now, format: .xml, options: 0)
-        try mg_write(data)
-        mg_dict_now = NSMutableDictionary()
-        print("[mg] successfully wrote MobileGestalt!")
-    } catch {
-        print("[mg] failed to apply: \(error)")
+func mg_apply() throws {
+    let cache_extra = mg_dict_now["CacheExtra"] as? NSMutableDictionary ?? NSMutableDictionary()
+    if mg_dict_now["CacheExtra"] == nil { mg_dict_now["CacheExtra"] = cache_extra }
+    if !product_type.isEmpty {
+        cache_extra["h9jDsbgj7xIVeIQ8S3/X3Q"] = product_type
     }
+    if let art = cache_extra["oPeik/9e8lQWMszEjbPzng"] as? NSMutableDictionary {
+        art["ArtworkDeviceSubType"] = selected_st_value
+        if enable_device_name {
+            art["ArtworkDeviceProductDescription"] = mg_device_name
+        }
+    } else {
+        let artwork: NSMutableDictionary = ["ArtworkDeviceSubType": selected_st_value]
+        if enable_device_name { artwork["ArtworkDeviceProductDescription"] = mg_device_name }
+        cache_extra["oPeik/9e8lQWMszEjbPzng"] = artwork
+    }
+
+    let data = try PropertyListSerialization.data(fromPropertyList: mg_dict_now, format: .xml, options: 0)
+    try mg_write(data)
+    mg_dict_now = NSMutableDictionary()
+    print("[mg] successfully wrote MobileGestalt!")
 }
 
-func mg_revert() {
-    do {
-        let backup_url = URL(fileURLWithPath: TweakPaths.backups).appendingPathComponent("SavedGestalt.plist")
-        let backup_data = try Data(contentsOf: backup_url)
-        try mg_write(backup_data)
-        print("[mg] successfully reverted!")
-    } catch {
-        print("[mg] failed to revert: \(error)")
+func mg_revert() throws {
+    let backup_url = URL(fileURLWithPath: TweakPaths.backups).appendingPathComponent("SavedGestalt.plist")
+    let backup_data = try Data(contentsOf: backup_url)
+    try mg_write(backup_data)
+    print("[mg] successfully reverted!")
+}
+
+func mg_verify_on_disk() -> String? {
+    guard let dict = try? NSDictionary(contentsOf: URL(fileURLWithPath: TweakPaths.gestalt), error: ()) as? [String: Any],
+          let ce = dict["CacheExtra"] as? [String: Any] else {
+        return "[verify] failed to read back \(TweakPaths.gestalt) (open errno=\(errno) \(String(cString: strerror(errno))))"
     }
+    // check a couple keys
+    let keys = ["YlEtTtHlNesRBMal1CqRaA", "QHxt+hGLaBPbQJbXiUJX3w", "h9jDsbgj7xIVeIQ8S3/X3Q", "oPeik/9e8lQWMszEjbPzng"]
+    var out = "[verify] on-disk CacheExtra:"
+    for k in keys {
+        if let v = ce[k] { out += " \(k)=\(v);" } else { out += " \(k)=<missing>;" }
+    }
+    if let art = ce["oPeik/9e8lQWMszEjbPzng"] as? [String: Any] {
+        out += " Artwork=\(art)"
+    }
+    return out
 }
 
 private func mg_write(_ data: Data, to path: String) throws {
