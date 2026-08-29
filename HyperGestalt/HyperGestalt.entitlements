@@ -18,5 +18,13 @@
 	<true/>
 	<key>com.apple.private.skip-library-validation</key>
 	<true/>
+	<key>com.apple.security.exception.iokit-user-client-class</key>
+	<array>
+		<string>IOSurfaceRoot</string>
+		<string>IOSurfaceRootUserClient</string>
+		<string>IOSurfaceSharedUserClient</string>
+		<string>AGXDeviceUserClient</string>
+		<string>AGXSharedUserClient</string>
+	</array>
 </dict>
 </plist>

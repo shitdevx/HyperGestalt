@@ -12,6 +12,7 @@ targets:
     sources:
       - HyperGestalt/Sources
       - HyperGestalt/Assets.xcassets
+      - HyperGestalt/Bridging
     settings:
       base:
         SWIFT_VERSION: 5.0
@@ -28,6 +29,13 @@ targets:
         TARGETED_DEVICE_FAMILY: "1,2"
         CODE_SIGNING_ALLOWED: NO
         LD_RUNPATH_SEARCH_PATHS: "$(inherited) @executable_path/Frameworks"
+        OTHER_LDFLAGS:
+          - -framework IOSurface
+          - -framework IOKit
+        GCC_WARN_ABOUT_RETURN_TYPE: YES
+        CLANG_WARN_BOOL_CONVERSION: YES
+        GCC_PREPROCESSOR_DEFINITIONS:
+          - __IPHONE_OS_VERSION_MIN_REQUIRED=150000
         GENERATE_INFOPLIST_FILE: NO
       configs:
         Debug:
