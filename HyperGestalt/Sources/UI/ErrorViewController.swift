@@ -6,7 +6,7 @@ class ErrorViewController: UIViewController {
     let retryAction: () -> Void
     
     init(error: Error, retryAction: @escaping () -> Void) {
-        self.error: Error = error
+        self.error = error
         self.retryAction = retryAction
         super.init(nibName: nil, bundle: nil)
     }
