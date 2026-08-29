@@ -2,5 +2,4 @@
 #define HyperGestalt_Bridging_Header_h
 #import "bad_query.h"
 #import "clipwire.h"
-#import "DarkswordBridge.h"
 #endif
